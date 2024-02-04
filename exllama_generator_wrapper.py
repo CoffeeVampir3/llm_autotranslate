@@ -87,7 +87,7 @@ class ExLlamaV2StreamGenerator(ExLlamaV2BaseGenerator):
         
         batch_eos = [False] * batch_size
 
-        prior_len = 0
+        prior_len = len(prompt)
         for i in range(num_tokens):
 
             logits = self.model.forward(self.sequence_ids[:, -1:], self.cache, input_mask = mask, loras = loras, position_offsets = position_offsets).float().cpu()
@@ -112,7 +112,6 @@ class ExLlamaV2StreamGenerator(ExLlamaV2BaseGenerator):
                 yield(fragment)
                 prior_len = len(step_v)
             elif stop_status == StopStatus.STOP:
-                print(f"\n: Encountered stop, fragment: {fragment}")
                 return
                 
             gen_settings.feed_filters(token)
@@ -138,12 +137,12 @@ def load_model(model_directory):
     
     return config, tokenizer, cache, generator
 
-def generate_response_fold(settings, max_length, stop_sequences=[]):
+def generate_response_fold(prompt, generator, settings, max_length, stop_sequences=[]):
     buffer = ""
-    for fragment in generator.generate_step("Test prompt", settings, max_length, token_healing=True, stop_sequences = stop_sequences):
+    for fragment in generator.generate_step(prompt, settings, max_length, token_healing=True, stop_sequences = stop_sequences):
         buffer += fragment
     return buffer
 
-def generate_response_stream(settings, max_length, stop_sequences=[]):
-    for fragment in generator.generate_step("Test prompt", settings, max_length, token_healing=True, stop_sequences = stop_sequences):
+def generate_response_stream(prompt, generator, settings, max_length, stop_sequences=[]):
+    for fragment in generator.generate_step(prompt, settings, max_length, token_healing=True, stop_sequences = stop_sequences):
         yield fragment
