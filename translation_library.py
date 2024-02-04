@@ -51,26 +51,21 @@ German
     text = resp.strip()
     return text
 
-def multishot_is_japanese_binary_response(generate_fn, input):
+def multishot_is_language_binary_response(generate_fn, language_name, affirmative_example, input):
     prompt = (
-f"""::TEXT::
-さくら
-::END TEXT::
-::IS TEXT JAPANESE::
-Yes
-::END::
+f"""{affirmative_example}
 
 ::TEXT::
 Hello, how are you?
 ::END TEXT::
-::IS TEXT JAPANESE::
+::IS TEXT {language_name}::
 No
 ::END::
 
 ::TEXT::
 안녕하세요
 ::END TEXT::
-::IS TEXT JAPANESE::
+::IS TEXT {language_name}::
 No
 ::END::
 
@@ -78,18 +73,28 @@ No
 def fn(prompt):
     return True
 ::END TEXT::
-::IS TEXT JAPANESE::
+::IS TEXT {language_name}::
 No
 ::END::
 
 ::TEXT::
 {input}
 ::END TEXT::
-::IS TEXT JAPANESE::""")
+::IS TEXT {language_name}::""")
     
     resp = generate_fn(prompt=prompt, stop_sequences=["::END"])
     text = resp.strip()
     return text
+
+def multishot_is_japanese_binary_response(generate_fn, input):
+    affirmative_example = (
+f"""::TEXT::
+さくら
+::END TEXT::
+::IS TEXT JAPANESE::
+Yes
+::END::""")
+    return multishot_is_language_binary_response(generate_fn, "JAPANESE", affirmative_example, input)
     
 def japanese_three_shot_to_english(generate_fn, input):
     prompt = (
