@@ -1,5 +1,95 @@
-def japanese_binary_response(generate_fn):
-    generate_fn()
+def multishot_detect_language(generate_fn, input):
+    prompt = (
+f"""::INPUT TEXT::
+さくら
+::END TEXT::
+::PREDICTED LANGUAGE::
+Japanese
+::END PREDICTION::
+
+::INPUT TEXT::
+ゆき
+::END TEXT::
+::ENGLISH TEXT::
+Japanese
+::END PREDICTION::
+
+::INPUT TEXT::
+1月下旬、大手カレーチェーン「カレーハウスCoCo (ココ）壱(いち)番屋」のキッチンカーがやってきたのは、24人が避難する石川県七尾市の能登島地区コミュニティセンターだ。量や辛さの希望を社員が聞き取り、ご飯をよそった容器のふたの上に温かいレトルトパウチを載せて渡す。
+::END TEXT::
+::PREDICTED LANGUAGE::
+Japanese
+::END PREDICTION::
+
+::INPUT TEXT::
+The goat
+::END TEXT::
+::PREDICTED LANGUAGE::
+English
+::END PREDICTION::
+
+::INPUT TEXT::
+안녕하세요
+::END TEXT::
+::PREDICTED LANGUAGE::
+Korean
+::END PREDICTION::
+
+::INPUT TEXT::
+Wie geht es Ihnen?
+::END TEXT::
+::PREDICTED LANGUAGE::
+German
+::END PREDICTION::
+
+::INPUT TEXT::
+{input}
+::END TEXT::
+::PREDICTED LANGUAGE::""")
+    
+    resp = generate_fn(prompt=prompt, stop_sequences=["::END PREDICTION"])
+    text = resp.strip()
+    return text
+
+def multishot_is_japanese_binary_response(generate_fn, input):
+    prompt = (
+f"""::TEXT::
+さくら
+::END TEXT::
+::IS TEXT JAPANESE::
+Yes
+::END::
+
+::TEXT::
+Hello, how are you?
+::END TEXT::
+::IS TEXT JAPANESE::
+No
+::END::
+
+::TEXT::
+안녕하세요
+::END TEXT::
+::IS TEXT JAPANESE::
+No
+::END::
+
+::TEXT::
+def fn(prompt):
+    return True
+::END TEXT::
+::IS TEXT JAPANESE::
+No
+::END::
+
+::TEXT::
+{input}
+::END TEXT::
+::IS TEXT JAPANESE::""")
+    
+    resp = generate_fn(prompt=prompt, stop_sequences=["::END"])
+    text = resp.strip()
+    return text
     
 def japanese_three_shot_to_english(generate_fn, input):
     prompt = (

@@ -7,7 +7,7 @@ from exllamav2.generator import (
 )
 from exllama_generator_wrapper import load_model, generate_response_fold
 
-from translation_library import japanese_three_shot_to_english
+from translation_library import japanese_three_shot_to_english, multishot_detect_language, multishot_is_japanese_binary_response
 
 abs_path = os.path.abspath(sys.argv[1])
 config, tokenizer, cache, generator = load_model(sys.argv[1])
@@ -35,8 +35,15 @@ generate = partial(generate_response_fold, generator=generator, settings=setting
 for (jap_name, eng_name) in combined_names:
     print(jap_name)
     input = jap_name
+
+    binary_resp = multishot_is_japanese_binary_response(generate, input)
+    print(f"Is language japanese: {binary_resp}")
+    
+    language_resp = multishot_detect_language(generate, input)
+    print(f"Predicted language: {language_resp}")
     
     resp = japanese_three_shot_to_english(generate, input)
-    text = resp.strip()
-    print(text)
+    print(f"Predicted text: {resp}")
+    
+    print("\n\n")
     
