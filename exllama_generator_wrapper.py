@@ -138,9 +138,12 @@ def load_model(model_directory):
     
     return config, tokenizer, cache, generator
 
-def generate_response(settings, max_length, stop_sequences=[]):
-    print("loaded!")
+def generate_response_fold(settings, max_length, stop_sequences=[]):
     buffer = ""
-    for bit in generator.generate_step("Test prompt", settings, max_length, token_healing=True, stop_sequences = stop_sequences):
-        buffer += bit
+    for fragment in generator.generate_step("Test prompt", settings, max_length, token_healing=True, stop_sequences = stop_sequences):
+        buffer += fragment
     return buffer
+
+def generate_response_stream(settings, max_length, stop_sequences=[]):
+    for fragment in generator.generate_step("Test prompt", settings, max_length, token_healing=True, stop_sequences = stop_sequences):
+        yield fragment
