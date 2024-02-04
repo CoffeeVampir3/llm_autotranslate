@@ -47,7 +47,8 @@ class StopBuffer:
 class ExLlamaV2StreamGenerator(ExLlamaV2BaseGenerator):
     def __init__(self, model, cache, tokenizer):
         super().__init__(model, cache, tokenizer)
-        
+    
+    # Largely a copy of the original generate_simple from exllamav2, modified to support stopping sequences and streaming generation.
     def generate_step(self, prompt: str or list,
                         gen_settings: ExLlamaV2Sampler.Settings,
                         num_tokens: int,
@@ -136,12 +137,6 @@ def load_model(model_directory):
     generator = ExLlamaV2StreamGenerator(model, cache, tokenizer)
     
     return config, tokenizer, cache, generator
-
-config, tokenizer, cache, generator = load_model("/home/blackroot/Desktop/exl2_test/exl_llms/miqu-1-70b-sf-3.0bpw-h6-exl2")
-
-settings = ExLlamaV2Sampler.Settings()
-settings.top_k = 1
-settings.disallow_tokens(tokenizer, [tokenizer.eos_token_id])
 
 def generate_response(settings, max_length, stop_sequences=[]):
     print("loaded!")
